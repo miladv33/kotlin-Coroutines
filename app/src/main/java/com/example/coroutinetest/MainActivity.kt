@@ -3,8 +3,8 @@ package com.example.coroutinetest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.coroutinetest.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.android.Main
@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         async_button.setOnClickListener {
             launch(Dispatchers.IO) {
-
                 getList()
             }
         }
@@ -28,6 +27,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             }
         }
     }
+
     @SuppressLint("SetTextI18n")
     fun CoroutineScope.getList(): List<String> {
         launch(Dispatchers.Main) {
@@ -36,25 +36,21 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             async(Dispatchers.Main) {
                 for (i in 0..10000000 step 5) {
                     delay(400)
-                    if (i % 20 == 0) {
-                        left_textView.text = ""
-                    }
                     left_textView.text = left_textView.text.toString() + i.toString() + "\n"
+                    left_textView.clearIfIsOutOfTheScreen(i)
                 }
             }
-            async(Dispatchers.IO){
+            async(Dispatchers.IO) {
                 for (i in 0..10000000000000) {
                     delay(10)
-                    Log.i("TestIO","$i")
+                    Log.i("TestIO", "$i")
                 }
             }
             async(Dispatchers.Main) {
-                for (i in 0..1000000000){
+                for (i in 0..1000000000) {
                     delay(100)
-                    if (i % 20 == 0) {
-                        right_textView.text = ""
-                    }
                     right_textView.text = right_textView.text.toString() + i.toString() + "\n"
+                    right_textView.clearIfIsOutOfTheScreen(i)
                 }
             }
         }
@@ -72,10 +68,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                     left_textView.text = left_textView.text.toString() + i.toString() + "\n"
                 }
             }
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 for (i in 0..10) {
                     delay(500)
-                    Log.i("TestIO","$i")
+                    Log.i("TestIO", "$i")
                 }
             }
             withContext(Dispatchers.Main) {
@@ -88,6 +84,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         return emptyList()
     }
 
+    fun TextView.clearIfIsOutOfTheScreen(i: Int) {
+        if (i % 20 == 0)
+            text = ""
+    }
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
